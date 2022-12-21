@@ -1,0 +1,27 @@
+Source: liblivemedia
+Priority: optional
+Maintainer: Stephen Rhodes <sr99622@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+ , cmake
+ , libssl-dev
+Standards-Version: 4.5.1
+Section: libs
+Homepage: http://www.live555.com/liveMedia/
+Rules-Requires-Root: no
+
+Package: liblivemedia-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: liblivemedia1 (= ${binary:Version}), ${misc:Depends}
+Description: Modernised and simplified version of the live555 
+ set of C++ libraries for multimedia streaming, using open 
+ standard protocols (RTP/RTCP, RTSP, SIP). Cmake build system
+ intergration and single file library distribution.
+
+Package: liblivemedia1
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: LiveMedia is a set of C++ libraries for multimedia streaming,
+ using open standard protocols (RTP/RTCP, RTSP, SIP)

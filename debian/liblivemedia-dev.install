@@ -1,0 +1,4 @@
+usr/include/*
+usr/lib/*/liblivemedia.so
+usr/lib/*/pkgconfig/*.pc
+usr/lib/*/cmake/LibLiveMedia/*.cmake

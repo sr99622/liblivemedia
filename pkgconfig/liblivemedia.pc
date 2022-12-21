@@ -1,0 +1,10 @@
+prefix=/usr
+libdir=/usr/lib/x86_64-linux-gnu
+includedir=${prefix}/include
+
+Name: libliveMedia
+Description: multimedia RTSP streaming library
+Version: 2022.12.01
+Cflags: -I${includedir}/liveMedia -I${includedir}/groupsock -I${includedir}/BasicUsageEnvironment -I${includedir}/UsageEnvironment
+Libs: -L${libdir} -lliveMedia
+Libs.private: -lssl -lcrypto
