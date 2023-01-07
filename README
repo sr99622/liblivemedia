@@ -1,2 +1,5 @@
-For documentation and instructions for building this software,
+For documentation about this software,
 see <http://www.live555.com/liveMedia/>
+
+This is a cmake version for linux and windows,
+it makes a single library file
