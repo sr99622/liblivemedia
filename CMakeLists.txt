@@ -20,6 +20,13 @@ set(CMAKE_CXX_FLAGS "-DSOCKLEN_T=socklen_t")
 include(GNUInstallDirs)
 set(CMAKE_INSTALL_INCLUDEDIR "include/${CMAKE_LIBRARY_ARCHITECTURE}")
 
+if(WIN32)
+    add_compile_options("/EHsc")
+    add_compile_definitions("NO_GETIFADDRS")
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set(BUILD_SHARED_LIBS TRUE)
+endif()
+
 add_library(livemedia SHARED
 
     UsageEnvironment/HashTable.cpp
@@ -227,6 +234,8 @@ add_library(livemedia SHARED
 target_link_libraries(livemedia PRIVATE
     OpenSSL::SSL
     OpenSSL::Crypto
+    wsock32
+    ws2_32
 )
 
 target_include_directories(livemedia PUBLIC
