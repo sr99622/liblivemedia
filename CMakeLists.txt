@@ -231,12 +231,19 @@ add_library(livemedia SHARED
     liveMedia/rtcp_from_spec.c
 )
 
-target_link_libraries(livemedia PRIVATE
-    OpenSSL::SSL
-    OpenSSL::Crypto
-    wsock32
-    ws2_32
-)
+if (WIN32)
+    target_link_libraries(livemedia PRIVATE
+        OpenSSL::SSL
+        OpenSSL::Crypto
+        wsock32
+        ws2_32
+    )
+else()
+    target_link_libraries(livemedia PRIVATE
+        OpenSSL::SSL
+        OpenSSL::Crypto
+    )
+endif()
 
 target_include_directories(livemedia PUBLIC
     liveMedia/include
