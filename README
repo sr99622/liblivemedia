@@ -3,3 +3,9 @@ see <http://www.live555.com/liveMedia/>
 
 This is a cmake version for linux and windows,
 it makes a single library file
+
+OpenSSL is required. 
+
+For Debian style linux, use sudo apt install libssl-dev.
+
+For windows, compile from source <https://github.com/openssl/openssl/blob/master/NOTES-WINDOWS.md>
