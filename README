@@ -8,4 +8,4 @@ OpenSSL is required.
 
 For Debian style linux, use sudo apt install libssl-dev.
 
-For windows, compile from source <https://github.com/openssl/openssl/blob/master/NOTES-WINDOWS.md>
+For windows, compile from source using x64 architecture <https://github.com/openssl/openssl/blob/master/NOTES-WINDOWS.md>
