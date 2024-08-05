@@ -1,0 +1,2 @@
+include README.md CMakeLists.txt COPYING
+recursive-include pybind11 *

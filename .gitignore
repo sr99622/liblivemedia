@@ -1,0 +1,14 @@
+build*/
+dist/
+*.egg-info
+.vscode/
+sample.pro.user
+__pycache__/
+bin/
+pyvenv.cfg
+share/
+*.pt
+*.engine
+*.onnx
+runs/
+models/

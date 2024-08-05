@@ -1,22 +1,28 @@
 #/*********************************************************
 #
-# Copyright (c) 2022 Stephen Rhodes
+# Copyright (c) 2022, 2024 Stephen Rhodes
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+# more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
 #***********************************************************/
 
-cmake_minimum_required(VERSION 3.17)
-project(liblivemedia VERSION 2022.12.01)
-find_package(OpenSSL REQUIRED)
-set(CMAKE_CXX_FLAGS "-DSOCKLEN_T=socklen_t")
+cmake_minimum_required(VERSION 3.20)
+set(CMAKE_CXX_STANDARD 20)
+project(liblivemedia VERSION 1.0.0)
+#find_package(OpenSSL REQUIRED)
+set(CMAKE_CXX_FLAGS "-DSOCKLEN_T=socklen_t -DNO_OPENSSL=1")
 include(GNUInstallDirs)
 set(CMAKE_INSTALL_INCLUDEDIR "include/${CMAKE_LIBRARY_ARCHITECTURE}")
 
@@ -27,7 +33,11 @@ if(WIN32)
     set(BUILD_SHARED_LIBS TRUE)
 endif()
 
-add_library(livemedia SHARED
+add_subdirectory(pybind11)
+
+pybind11_add_module(liblivemedia
+    
+    MyApps/liblivemedia.cpp
 
     UsageEnvironment/HashTable.cpp
     UsageEnvironment/UsageEnvironment.cpp
@@ -231,226 +241,23 @@ add_library(livemedia SHARED
     liveMedia/rtcp_from_spec.c
 )
 
+#target_link_libraries(liblivemedia PRIVATE
+#    OpenSSL::SSL
+#    OpenSSL::Crypto
+#)
+
 if (WIN32)
-    target_link_libraries(livemedia PRIVATE
-        OpenSSL::SSL
-        OpenSSL::Crypto
+    target_link_libraries(liblivemedia PRIVATE
         wsock32
-        ws2_32
-    )
-else()
-    target_link_libraries(livemedia PRIVATE
-        OpenSSL::SSL
-        OpenSSL::Crypto
+        ws2_32    
     )
 endif()
 
-target_include_directories(livemedia PUBLIC
+target_include_directories(liblivemedia SYSTEM PUBLIC
     liveMedia/include
     groupsock/include
     UsageEnvironment/include
     BasicUsageEnvironment/include
+    MyApps/ProxyServer/include
 )
 
-set_target_properties(livemedia PROPERTIES
-    SOVERSION 1
-)
-
-install(TARGETS livemedia DESTINATION "${CMAKE_INSTALL_LIBDIR}/")
-
-install(FILES pkgconfig/liblivemedia.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-install(FILES cmake/FindLiveMedia.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/LibLiveMedia/")
-
-install(FILES
-    groupsock/include/GroupEId.hh
-    groupsock/include/Groupsock.hh
-    groupsock/include/IOHandlers.hh
-    groupsock/include/NetCommon.h
-    groupsock/include/GroupsockHelper.hh
-    groupsock/include/groupsock_version.hh
-    groupsock/include/NetAddress.hh
-    groupsock/include/NetInterface.hh
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/groupsock")
-
-install(FILES
-    BasicUsageEnvironment/include/BasicHashTable.hh
-    BasicUsageEnvironment/include/BasicUsageEnvironment.hh
-    BasicUsageEnvironment/include/DelayQueue.hh
-    BasicUsageEnvironment/include/BasicUsageEnvironment0.hh
-    BasicUsageEnvironment/include/BasicUsageEnvironment_version.hh
-    BasicUsageEnvironment/include/HandlerSet.hh
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/BasicUsageEnvironment")
-
-install(FILES
-    UsageEnvironment/include/Boolean.hh
-    UsageEnvironment/include/HashTable.hh
-    UsageEnvironment/include/strDup.hh
-    UsageEnvironment/include/UsageEnvironment.hh
-    UsageEnvironment/include/UsageEnvironment_version.hh
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/UsageEnvironment")
-
-install(FILES
-    liveMedia/include/AC3AudioFileServerMediaSubsession.hh
-    liveMedia/include/AC3AudioRTPSink.hh
-    liveMedia/include/AC3AudioRTPSource.hh
-    liveMedia/include/AC3AudioStreamFramer.hh
-    liveMedia/include/ADTSAudioFileServerMediaSubsession.hh
-    liveMedia/include/ADTSAudioFileSource.hh
-    liveMedia/include/ADTSAudioStreamDiscreteFramer.hh
-    liveMedia/include/AMRAudioFileServerMediaSubsession.hh
-    liveMedia/include/AMRAudioFileSink.hh
-    liveMedia/include/AMRAudioFileSource.hh
-    liveMedia/include/AMRAudioRTPSink.hh
-    liveMedia/include/AMRAudioRTPSource.hh
-    liveMedia/include/AMRAudioSource.hh
-    liveMedia/include/AudioInputDevice.hh
-    liveMedia/include/AudioRTPSink.hh
-    liveMedia/include/AVIFileSink.hh
-    liveMedia/include/Base64.hh
-    liveMedia/include/BasicUDPSink.hh
-    liveMedia/include/BasicUDPSource.hh
-    liveMedia/include/BitVector.hh
-    liveMedia/include/ByteStreamFileSource.hh
-    liveMedia/include/ByteStreamMemoryBufferSource.hh
-    liveMedia/include/ByteStreamMultiFileSource.hh
-    liveMedia/include/DeviceSource.hh
-    liveMedia/include/DigestAuthentication.hh
-    liveMedia/include/DVVideoFileServerMediaSubsession.hh
-    liveMedia/include/DVVideoRTPSink.hh
-    liveMedia/include/DVVideoRTPSource.hh
-    liveMedia/include/DVVideoStreamFramer.hh
-    liveMedia/include/FileServerMediaSubsession.hh
-    liveMedia/include/FileSink.hh
-    liveMedia/include/FramedFileSource.hh
-    liveMedia/include/FramedFilter.hh
-    liveMedia/include/FramedSource.hh
-    liveMedia/include/GenericMediaServer.hh
-    liveMedia/include/GSMAudioRTPSink.hh
-    liveMedia/include/H261VideoRTPSource.hh
-    liveMedia/include/H263plusVideoFileServerMediaSubsession.hh
-    liveMedia/include/H263plusVideoRTPSink.hh
-    liveMedia/include/H263plusVideoRTPSource.hh
-    liveMedia/include/H263plusVideoStreamFramer.hh
-    liveMedia/include/H264or5VideoFileSink.hh
-    liveMedia/include/H264or5VideoRTPSink.hh
-    liveMedia/include/H264or5VideoStreamDiscreteFramer.hh
-    liveMedia/include/H264or5VideoStreamFramer.hh
-    liveMedia/include/H264VideoFileServerMediaSubsession.hh
-    liveMedia/include/H264VideoFileSink.hh
-    liveMedia/include/H264VideoRTPSink.hh
-    liveMedia/include/H264VideoRTPSource.hh
-    liveMedia/include/H264VideoStreamDiscreteFramer.hh
-    liveMedia/include/H264VideoStreamFramer.hh
-    liveMedia/include/H265VideoFileServerMediaSubsession.hh
-    liveMedia/include/H265VideoFileSink.hh
-    liveMedia/include/H265VideoRTPSink.hh
-    liveMedia/include/H265VideoRTPSource.hh
-    liveMedia/include/H265VideoStreamDiscreteFramer.hh
-    liveMedia/include/H265VideoStreamFramer.hh
-    liveMedia/include/HLSSegmenter.hh
-    liveMedia/include/HMAC_hash.hh
-    liveMedia/include/HMAC_SHA1.hh
-    liveMedia/include/InputFile.hh
-    liveMedia/include/JPEG2000VideoRTPSink.hh
-    liveMedia/include/JPEG2000VideoRTPSource.hh
-    liveMedia/include/JPEGVideoRTPSink.hh
-    liveMedia/include/JPEGVideoRTPSource.hh
-    liveMedia/include/JPEGVideoSource.hh
-    liveMedia/include/liveMedia.hh
-    liveMedia/include/liveMedia_version.hh
-    liveMedia/include/Locale.hh
-    liveMedia/include/MatroskaFile.hh
-    liveMedia/include/MatroskaFileServerDemux.hh
-    liveMedia/include/Media.hh
-    liveMedia/include/MediaSession.hh
-    liveMedia/include/MediaSink.hh
-    liveMedia/include/MediaSource.hh
-    liveMedia/include/MediaTranscodingTable.hh
-    liveMedia/include/MIKEY.hh
-    liveMedia/include/MP3ADU.hh
-    liveMedia/include/MP3ADUinterleaving.hh
-    liveMedia/include/MP3ADURTPSink.hh
-    liveMedia/include/MP3ADURTPSource.hh
-    liveMedia/include/MP3ADUTranscoder.hh
-    liveMedia/include/MP3AudioFileServerMediaSubsession.hh
-    liveMedia/include/MP3FileSource.hh
-    liveMedia/include/MP3Transcoder.hh
-    liveMedia/include/MPEG1or2AudioRTPSink.hh
-    liveMedia/include/MPEG1or2AudioRTPSource.hh
-    liveMedia/include/MPEG1or2AudioStreamFramer.hh
-    liveMedia/include/MPEG1or2DemuxedElementaryStream.hh
-    liveMedia/include/MPEG1or2DemuxedServerMediaSubsession.hh
-    liveMedia/include/MPEG1or2Demux.hh
-    liveMedia/include/MPEG1or2FileServerDemux.hh
-    liveMedia/include/MPEG1or2VideoFileServerMediaSubsession.hh
-    liveMedia/include/MPEG1or2VideoRTPSink.hh
-    liveMedia/include/MPEG1or2VideoRTPSource.hh
-    liveMedia/include/MPEG1or2VideoStreamDiscreteFramer.hh
-    liveMedia/include/MPEG1or2VideoStreamFramer.hh
-    liveMedia/include/MPEG2IndexFromTransportStream.hh
-    liveMedia/include/MPEG2TransportFileServerMediaSubsession.hh
-    liveMedia/include/MPEG2TransportStreamAccumulator.hh
-    liveMedia/include/MPEG2TransportStreamDemux.hh
-    liveMedia/include/MPEG2TransportStreamFramer.hh
-    liveMedia/include/MPEG2TransportStreamFromESSource.hh
-    liveMedia/include/MPEG2TransportStreamFromPESSource.hh
-    liveMedia/include/MPEG2TransportStreamIndexFile.hh
-    liveMedia/include/MPEG2TransportStreamMultiplexor.hh
-    liveMedia/include/MPEG2TransportStreamTrickModeFilter.hh
-    liveMedia/include/MPEG2TransportUDPServerMediaSubsession.hh
-    liveMedia/include/MPEG4ESVideoRTPSink.hh
-    liveMedia/include/MPEG4ESVideoRTPSource.hh
-    liveMedia/include/MPEG4GenericRTPSink.hh
-    liveMedia/include/MPEG4GenericRTPSource.hh
-    liveMedia/include/MPEG4LATMAudioRTPSink.hh
-    liveMedia/include/MPEG4LATMAudioRTPSource.hh
-    liveMedia/include/MPEG4VideoFileServerMediaSubsession.hh
-    liveMedia/include/MPEG4VideoStreamDiscreteFramer.hh
-    liveMedia/include/MPEG4VideoStreamFramer.hh
-    liveMedia/include/MPEGVideoStreamFramer.hh
-    liveMedia/include/MultiFramedRTPSink.hh
-    liveMedia/include/MultiFramedRTPSource.hh
-    liveMedia/include/OggFile.hh
-    liveMedia/include/OggFileServerDemux.hh
-    liveMedia/include/OggFileSink.hh
-    liveMedia/include/OnDemandServerMediaSubsession.hh
-    liveMedia/include/ourMD5.hh
-    liveMedia/include/OutputFile.hh
-    liveMedia/include/PassiveServerMediaSubsession.hh
-    liveMedia/include/ProxyServerMediaSession.hh
-    liveMedia/include/QCELPAudioRTPSource.hh
-    liveMedia/include/QuickTimeFileSink.hh
-    liveMedia/include/QuickTimeGenericRTPSource.hh
-    liveMedia/include/RawVideoFrameParameters.hh
-    liveMedia/include/RawVideoRTPSink.hh
-    liveMedia/include/RawVideoRTPSource.hh
-    liveMedia/include/RTCP.hh
-    liveMedia/include/RTPInterface.hh
-    liveMedia/include/RTPSink.hh
-    liveMedia/include/RTPSource.hh
-    liveMedia/include/RTSPClient.hh
-    liveMedia/include/RTSPCommon.hh
-    liveMedia/include/RTSPRegisterSender.hh
-    liveMedia/include/RTSPServer.hh
-    liveMedia/include/ServerMediaSession.hh
-    liveMedia/include/SimpleRTPSink.hh
-    liveMedia/include/SimpleRTPSource.hh
-    liveMedia/include/SIPClient.hh
-    liveMedia/include/SRTPCryptographicContext.hh
-    liveMedia/include/StreamReplicator.hh
-    liveMedia/include/T140TextRTPSink.hh
-    liveMedia/include/TextRTPSink.hh
-    liveMedia/include/TheoraVideoRTPSink.hh
-    liveMedia/include/TheoraVideoRTPSource.hh
-    liveMedia/include/TLSState.hh
-    liveMedia/include/uLawAudioFilter.hh
-    liveMedia/include/VideoRTPSink.hh
-    liveMedia/include/VorbisAudioRTPSink.hh
-    liveMedia/include/VorbisAudioRTPSource.hh
-    liveMedia/include/VP8VideoRTPSink.hh
-    liveMedia/include/VP8VideoRTPSource.hh
-    liveMedia/include/VP9VideoRTPSink.hh
-    liveMedia/include/VP9VideoRTPSource.hh
-    liveMedia/include/WAVAudioFileServerMediaSubsession.hh
-    liveMedia/include/WAVAudioFileSource.hh
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/liveMedia")
