@@ -31,7 +31,7 @@ public:
   TimeCode();
   virtual ~TimeCode();
 
-  int operator==(TimeCode const& arg2);
+  int isEqual(TimeCode const& arg2);
   unsigned days, hours, minutes, seconds, pictures;
 };
 

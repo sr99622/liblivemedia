@@ -31,7 +31,7 @@ TimeCode::TimeCode()
 TimeCode::~TimeCode() {
 }
 
-int TimeCode::operator==(TimeCode const& arg2) {
+int TimeCode::isEqual(TimeCode const& arg2) {
   return pictures == arg2.pictures && seconds == arg2.seconds
     && minutes == arg2.minutes && hours == arg2.hours && days == arg2.days;
 }
@@ -129,7 +129,7 @@ void MPEGVideoStreamFramer
     fPictureTimeBase = fFrameRate == 0.0 ? 0.0 : tc.pictures/fFrameRate;
     fTcSecsBase = (((tc.days*24)+tc.hours)*60+tc.minutes)*60+tc.seconds;
     fHaveSeenFirstTimeCode = True;
-  } else if (fCurGOPTimeCode == fPrevGOPTimeCode) {
+  } else if (fCurGOPTimeCode.isEqual(fPrevGOPTimeCode)) {
     // The time code has not changed since last time.  Adjust for this:
     fPicturesAdjustment += picturesSinceLastGOP;
   } else {
