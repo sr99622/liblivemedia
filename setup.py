@@ -28,7 +28,7 @@ from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
 PKG_NAME = "liblivemedia"
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=""):

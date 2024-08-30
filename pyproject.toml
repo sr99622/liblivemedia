@@ -25,7 +25,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "liblivemedia"
-version = "1.0.2"
+version = "1.0.3"
 authors = [
     { name="Stephen Rhodes", email="sr99622@gmail.com" },
 ]

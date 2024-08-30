@@ -1,2 +1,8 @@
 include README.md CMakeLists.txt COPYING
 recursive-include pybind11 *
+recursive-include src *
+recursive-include MyApps *
+recursive-include liveMedia *
+recursive-include UsageEnvironment *
+recursive-include BasicUsageEnvironment *
+recursive-include groupsock *
