@@ -43,7 +43,7 @@ PYBIND11_MODULE(liblivemedia, m)
         .def("startLoop", &ProxyServer::startLoop)
         .def("stopLoop", &ProxyServer::stopLoop);
 
-    m.attr("__version__") = "1.0.1";
+    m.attr("__version__") = "1.0.2";
 }
 
 
