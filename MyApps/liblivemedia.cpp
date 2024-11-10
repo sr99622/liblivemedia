@@ -34,16 +34,18 @@ PYBIND11_MODULE(liblivemedia, m)
 {
     m.doc() = "pybind11 liblivemedia plugin";
     py::class_<ProxyServer>(m, "ProxyServer")
-        .def(py::init<>())
+        .def(py::init<const std::string&, int>())
         .def("addURI", &ProxyServer::addURI)
         .def("getProxyURI", &ProxyServer::getProxyURI)
         .def("getRootURI", &ProxyServer::getRootURI)
-        .def("init", &ProxyServer::init)
-        .def("watch", &ProxyServer::watch)
-        .def("startLoop", &ProxyServer::startLoop)
-        .def("stopLoop", &ProxyServer::stopLoop);
+        .def("start", &ProxyServer::start)
+        .def("stop", &ProxyServer::stop)
+        .def("iterateClients", &ProxyServer::iterateClients)
+        .def("iterateConnections", &ProxyServer::iterateConnections)
+        .def("iterateMedia", &ProxyServer::iterateMedia)
+        .def_readwrite("running", &ProxyServer::running);
 
-    m.attr("__version__") = "1.0.3";
+    m.attr("__version__") = "1.0.5";
 }
 
 

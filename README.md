@@ -1,7 +1,7 @@
 For detailed documentation about this software,
 see <http://www.live555.com/liveMedia/>
 
-This repository creates an RTSP Proxy Server python module for use in [Onvif-GUI](https://github.com/sr99622@gmail.com) 
+This repository creates an RTSP Proxy Server python module for use in [Onvif-GUI](https://github.com/sr99622/libonvif) 
 
 ### License: LGPLv3
 

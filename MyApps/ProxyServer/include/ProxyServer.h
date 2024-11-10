@@ -22,8 +22,11 @@
 #ifndef PROXY_SERVER_H
 #define PROXY_SERVER_H
 
+#define DEBUG
+
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
+#include "GroupsockHelper.hh"
 #include <iostream>
 #include <vector>
 #include <utility>
@@ -33,16 +36,95 @@
 namespace liblivemedia
 {
 
+class MyClientConnection: public GenericMediaServer::ClientConnection {
+public:
+    struct sockaddr_storage* addr() { return &fClientAddr; }
+
+};
+
+class MyRTSPServer: public RTSPServer {
+public:
+    static MyRTSPServer* createNew(UsageEnvironment& env, Port ourPort = 554,
+			       UserAuthenticationDatabase* authDatabase = NULL,
+			       unsigned reclamationSeconds = 65) {
+                    return (MyRTSPServer*) RTSPServer::createNew(env, ourPort, authDatabase, reclamationSeconds);
+                   }
+
+    std::vector<std::string> iterateClients() {
+        std::cout << "iterate clients" << std::endl;
+        std::vector<std::string> result;
+        HashTable::Iterator* iter = HashTable::Iterator::create(*fClientSessions);
+        RTSPServer::RTSPClientSession* clientSession;
+        char const* key; // dummy
+        
+        while ((clientSession = (RTSPServer::RTSPClientSession*)(iter->next(key))) != NULL) {
+                // do something with clientSession
+                result.push_back(std::string("clientSession->fTrackId"));
+        }
+        delete iter; 
+        return result;  
+    }
+
+    std::vector<std::string> iterateConnections() {
+        std::cout << "iterate connections" << std::endl;
+        std::vector<std::string> result;
+        HashTable::Iterator* iter = HashTable::Iterator::create(*fClientConnections);
+        RTSPServer::RTSPClientConnection* clientConnection;
+        char const* key; // dummy
+        
+        while ((clientConnection = (RTSPServer::RTSPClientConnection*)(iter->next(key))) != NULL) {
+                // do something with clientSession
+                result.push_back(std::string("clientConnection"));
+                struct sockaddr_storage* fClientAddr = ((MyClientConnection*)clientConnection)->addr();
+                struct sockaddr_in* funk = (struct sockaddr_in*)fClientAddr;
+
+                char *s = inet_ntoa(funk->sin_addr);
+                printf("IP address: %s\n", s);
+
+        }
+        delete iter; 
+        return result;  
+    }
+
+    std::vector<std::string> iterateMedia() {
+        std::vector<std::string> result;
+        GenericMediaServer::ServerMediaSessionIterator *iter = new GenericMediaServer::ServerMediaSessionIterator(*this);
+        ServerMediaSession *sms = NULL;
+        while((sms = (ServerMediaSession *)iter->next()) != NULL)  {
+            if (sms) {
+                std::cout << sms->streamName() << " : " << sms->numSubsessions() << std::endl;
+                ServerMediaSubsessionIterator *sub_iter = new ServerMediaSubsessionIterator(*sms);
+                ServerMediaSubsession* smsb = NULL;
+                while ((smsb = sub_iter->next()) != NULL) {
+                    if (smsb) {
+                        std::cout << "FOUND SUB SESSION" << std::endl;
+                    }
+                }
+                result.push_back(sms->streamName());
+            }
+            /*
+            if (sms)  {
+                if(strcmp(sms->streamName(), streamName) == 0)  {
+                    m_rtspServer ->deleteServerMediaSession(sms);
+                }
+            }
+            */
+        }
+        delete iter;
+        return result;
+    }        
+            
+};
+
 class ProxyServer
 {
 
 public:
     UsageEnvironment* env = nullptr;
     TaskScheduler* scheduler = nullptr;
-    RTSPServer* rtspServer = nullptr;
-
-    int port = 554;
+    MyRTSPServer* rtspServer = nullptr;
     char watchVariable = 0;
+    bool running = false;
 
     std::map<std::string, std::string> uris;
 
@@ -53,10 +135,22 @@ public:
         if (rtspServer) free(rtspServer);
     }
 
-    ProxyServer()
+    ProxyServer(const std::string& ip, int port)
     {
+        if (ip.length())
+            ReceivingInterfaceAddr = inet_addr(ip.c_str());
+
         scheduler = BasicTaskScheduler::createNew();
         env = BasicUsageEnvironment::createNew(*scheduler);
+
+        rtspServer = MyRTSPServer::createNew(*env, port, nullptr);
+        if (!rtspServer) {
+            port = 8554;
+            rtspServer = MyRTSPServer::createNew(*env, port, nullptr);
+        }
+        if (!rtspServer) {
+            throw std::runtime_error("Unable to create rtsp server");
+        }
     }
 
     void addURI(const std::string& uri, const std::string& name, const std::string& username, const std::string& password)
@@ -68,6 +162,22 @@ public:
         rtspServer->addServerMediaSession(sms);
         std::string proxy = rtspServer->rtspURL(sms);
         uris[uri] = proxy;
+        //rtspServer->iterateMedia();
+    }
+
+    std::vector<std::string> iterateMedia()
+    {
+        return rtspServer->iterateMedia();
+    }
+
+    std::vector<std::string> iterateClients()
+    {
+        return rtspServer->iterateClients();
+    }
+
+    std::vector<std::string> iterateConnections()
+    {
+        return rtspServer->iterateConnections();
     }
 
     std::string getRootURI() const 
@@ -75,21 +185,9 @@ public:
         return std::string(rtspServer->rtspURLPrefix());
     }
 
-    void init(int port = 554)
+    void start()
     {
-        this->port = port;
-        rtspServer = RTSPServer::createNew(*env, port, nullptr);
-        if (!rtspServer) {
-            port = 8554;
-            rtspServer = RTSPServer::createNew(*env, port, nullptr);
-        }
-        if (!rtspServer) {
-            throw std::runtime_error("Unable to create rtsp server");
-        }
-    }
-
-    void startLoop()
-    {
+        running = true;
         std::thread thread([&]() { loop(); });
         thread.detach();
     }
@@ -100,14 +198,10 @@ public:
         env->taskScheduler().doEventLoop(&watchVariable);
     }
 
-    void stopLoop()
+    void stop()
     {
         watchVariable = ~0;
-    }
-
-    int watch()
-    {
-       return (int)watchVariable; 
+        running = false;
     }
 
     std::string getProxyURI(const std::string& uri) const
@@ -123,8 +217,6 @@ public:
 
         return result;
     }
-
-
 };
 
 }

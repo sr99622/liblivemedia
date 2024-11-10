@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 set(CMAKE_CXX_STANDARD 20)
-project(liblivemedia VERSION 1.0.3)
+project(liblivemedia VERSION 1.0.5)
 #find_package(OpenSSL REQUIRED)
 set(CMAKE_CXX_FLAGS "-DSOCKLEN_T=socklen_t -DNO_OPENSSL=1")
 include(GNUInstallDirs)
